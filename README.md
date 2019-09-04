@@ -20,7 +20,7 @@ Reminder to set your commit credentials (username and password) for deployment a
 
 Additionally, you will need to configure your `botinfo.py` and `class_list.json` files properly. (The `cert.pem` and `key.pem` files are required for the upcoming webhook implementation as I will be using a self-signed certificate.)
 
-
+After successful deployment, start the web app (if it is not yet started) and run the bot by going to `https://<app-name>.azurewebsites.net/<bot-token>`. The purpose of putting `<bot-token>` there is to prevent anyone else from just running the bot as and when they like it. This is also to prevent exposing too much obvious endpoints of the bot to the Internet for security purposes.
 
 ## Functions
 Currently, these are the available functions of this bot:
