@@ -4,7 +4,7 @@
 
 Olethros Bot is a utility bot that provides multiple functions for the purposes of SUTD Class 19F07 Telegram Group.
 
-This bot is deployed on Microsoft Azure as a Flask Web App under its App Services (I'm using my `Azure for Students` free subscription).
+This bot is deployed on Microsoft Azure as a Flask Web App (in a Linux Docker Container) under its App Services (I'm using my `Azure for Students` free subscription).
 
 ## Settings
 
@@ -18,9 +18,11 @@ This bot is deployed on Microsoft Azure as a Flask Web App under its App Service
 
 Reminder to set your commit credentials (username and password) for deployment authentication purposes.
 
-Additionally, you will need to configure your `botinfo.py` and `class_list.json` files properly. (The `cert.pem` and `key.pem` files are required for the upcoming webhook implementation as I will be using a self-signed SSL certificate.)
+Additionally, you will need to configure your `botinfo.py` and `class_list.json` files properly before deployment. (The `cert.pem` and `key.pem` files are required for the upcoming webhook implementation as I will be using a self-signed SSL certificate.)
 
-After successful deployment, start the web app (if it is not yet started) and run the bot by going to `https://<app-name>.azurewebsites.net/<bot-token>`. It should return an `OK`. The purpose of putting `<bot-token>` there is to prevent anyone else from just running the bot as and when they like it. This is also to prevent exposing too much obvious endpoints of the bot to the Internet for security purposes.
+After successful deployment, start the web app (if it is not yet started) and run the bot by going to `https://<app-name>.azurewebsites.net/<bot-token>`. It should return an `OK`. The purpose of putting `<bot-token>` there is to prevent anyone else from just running the bot as and when they like it. This is also to prevent exposing too much obvious endpoints of the bot to the Internet for security purposes. After running the bot, **do not** go to the homepage (`https://<app-name>.azurewebsites.net/`) as it will disable the bot. Alternatively, you can disable the homepage route entirely.
+
+NOTE: If the bot sleeps after a few hours without any HTTP requests (even with the `Always On` setting enabled), use [Uptime Robot](https://uptimerobot.com/) to schedule a free HTTP request at a regular interval (I used a 1-hour interval).
 
 ## Functions
 Currently, these are the available functions of this bot:
