@@ -16,7 +16,7 @@ This bot is deployed on Microsoft Azure as a Flask Web App (in a Linux Docker Co
 - HTTPS Only: On
 - Minimum TLS Version: 1.2
 - Application Settings:
-  ```
+  ``` json
   [
   {
     "name": "WEBSITE_TIME_ZONE",
