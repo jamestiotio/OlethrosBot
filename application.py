@@ -122,7 +122,6 @@ def main_group(func):
     return main_wrapped
 
 
-# I had an idea, but now I'm not sure on what to do with this command... ._.
 @restricted
 @main_group
 def summon(bot, update):
@@ -247,7 +246,7 @@ def roll(bot, update, args):
                     dice_num = int(dice.group(1)) if dice.group(1) else 1
                     sides = dice.group(2)
                     if (sides not in ['f','F'] and int(sides) > 1000) or (dice_num > 1000):
-                        raise Exception('Maximum number of dice sides and rollable dice are 1000')
+                        raise Exception('Maximum number of dice sides and rollable dice are 1000.')
                     space = ' '
                     result['visual'].append(space + '(')
                     result['equation'].append('(')
@@ -310,7 +309,7 @@ def roll(bot, update, args):
     except Exception as e:
         response = f'@{username}: <b>Invalid equation!</b>\r\n'
         if (int(sides) > 1000) or (dice_num and dice_num > 1000):
-            response += str(e) + '.\r\n'
+            response += str(e) + '\r\n'
         response += ('Please use <a href="https://en.wikipedia.org/wiki/Dice_notation">dice notation</a>.\r\n' +
                      'For example: <code>3d6</code>, or <code>1d20+5</code>, or <code>d12</code>.\r\n\r\n'
                      )
@@ -338,9 +337,12 @@ def vote(bot, update):
                      text='This command is still under development. Apologies for the inconvenience!')
 
 
+# Disable the homepage route to prevent the bot from being shut down
+"""
 @app.route("/")
 def home():
     return 'Nothing to see here, move along folks.'
+"""
 
 
 @app.route("/{}".format(BOT_TOKEN))
@@ -370,3 +372,10 @@ def main():
     # updater.bot.set_webhook(WEBHOOK_URL + "/" + BOT_TOKEN)
     
     return 'OK'
+
+
+# For localhost testing, include this
+"""
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', debug=True, port=8443, ssl_context=('cert.pem', 'key.pem'))
+"""

@@ -15,6 +15,16 @@ This bot is deployed on Microsoft Azure as a Flask Web App (in a Linux Docker Co
 - HTTP Version: 2.0
 - HTTPS Only: On
 - Minimum TLS Version: 1.2
+- Application Settings:
+  ```
+  [
+  {
+    "name": "WEBSITE_TIME_ZONE",
+    "value": "Asia/Singapore",
+    "slotSetting": false
+  }
+  ]
+  ```
 
 Reminder to set your commit credentials (username and password) for deployment authentication purposes.
 
