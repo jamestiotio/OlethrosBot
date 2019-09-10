@@ -10,7 +10,7 @@ This bot is deployed on Microsoft Azure as a Flask Web App (in a Linux Docker Co
 
 - Operating System: Debian 9
 - Runtime Stack: Python 3.7
-- Deployment Method (`ScmType`): `LocalGit`
+- Deployment Method (`ScmType`): `LocalGit` (for Kudu Build Server)
 - Startup Command: `gunicorn --bind=0.0.0.0 --timeout 0 application:app`
 - HTTP Version: 2.0
 - HTTPS Only: On
