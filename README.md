@@ -48,7 +48,7 @@ Credit to [@treetrnk](https://github.com/treetrnk/rollem-telegram-bot) for this 
 Please follow the proper <a href="https://en.wikipedia.org/wiki/Dice_notation">dice notation</a>.
 
 ### Code Tester
-Credit to [@veetaw](https://github.com/veetaw/rextester) and [@GingerPlusPlus](https://github.com/GingerPlusPlus/Rextester-bot-v3) for this feature. Execute snippets of code of various programming languages by using the `/run <language> <code> \stdin <stdin>` command.
+Credit to [@veetaw](https://github.com/veetaw/rextester) and [@GingerPlusPlus](https://github.com/GingerPlusPlus/Rextester-bot-v3) for this feature. Execute snippets of code of various programming languages by using the `/run <language> <code> [\stdin <stdin>]` command.
 Might be useful for SUTD 10.009 Digital World.
 
 
