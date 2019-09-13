@@ -21,6 +21,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, \
     CallbackQueryHandler, ConversationHandler
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, \
     KeyboardButton, ReplyKeyboardMarkup, ParseMode
+from rextester import Rextester, RextesterException
 import botinfo
 from flask import Flask
 
@@ -35,6 +36,8 @@ bot = telegram.Bot(token=BOT_TOKEN)
 # Create the EventHandler and pass it the bot's token.
 updater = Updater(token=BOT_TOKEN)
 job_queue = updater.job_queue
+
+rextester = Rextester()
 
 # Setup webhook if necessary
 # WEBHOOK_URL = botinfo.WEBHOOK_URL
@@ -122,6 +125,7 @@ def main_group(func):
     return main_wrapped
 
 
+# I had an idea, but now I'm not sure on what to do with this command... ._.
 @restricted
 @main_group
 def summon(bot, update):
@@ -143,6 +147,7 @@ def start(bot, update):
                           '• /track to initiate the daily birthday tracking function.\r\n'
                           '• /feelgood to send the feel-good message.\r\n'
                           '• /summon to attempt to summon a user.\r\n'
+                          '• /run to execute snippets of code.\r\n'
                           '• /roll to roll different kinds of dice.\r\n'
                           '• /set_reminder to set a reminder.\r\n'
                           '• /vote to vote for an option in a currently active poll.\r\n'
@@ -156,6 +161,48 @@ def start(bot, update):
 @restricted
 def stop(bot, update):
     sys.exit(0)
+
+
+# Credit to @veetaw and @GingerPlusPlus for the Rextester functions
+@main_group
+def run(bot, update):
+    message_text = update.effective_message.text
+
+    if len(message_text.split(" ")) < 3:
+        return
+
+    stdin = ''
+    if "\stdin" in message_text:
+        stdin = ' '.join(message_text.split('\stdin ')[1:])
+        message_text = message_text.replace('\stdin ' + stdin, '')
+
+    language = message_text.split(' ')[1]
+    code = ' '.join(message_text.split(' ')[2:])
+
+    try:
+        response = rextester.execute(language=language, code=code, stdin=stdin)
+    except RextesterException:
+        bot.send_message(chat_id=main_chat, text='Error at Rextester or unknown language!')
+        return
+
+    extra = ''
+    if response['Warnings']:
+        extra = extra + '\r\nWarning: ' + response['Warnings'] + '.'
+    if response['Errors']:
+        extra = extra + '\r\nErrors: ' + response['Errors'] + '.'
+
+    stats = ''
+    if response['Stats']:
+        stats = '\r\nStats: ' + response['Stats'] + '.'
+
+    output = ' No output. '
+    if response['Result']:
+        output = response['Result']
+
+    if len(extra) < 4070:  # prevent message_too_long
+        bot.send_message(chat_id=main_chat, text='Output: ' + output[:(4080 - len(extra) - len(stats))] + extra + stats)
+    else:
+        bot.send_message(chat_id=main_chat, text='Too long errors/warnings to show output. Sorry!')
 
 
 # Main daily check function
@@ -243,41 +290,50 @@ def roll(bot, update, args):
             for item in pair:
                 if item and len(item) > 1 and 'd' in item:
                     dice = re.search(r'(\d*)d([0-9fF]+)(!)?', item)
-                    dice_num = int(dice.group(1)) if dice.group(1) else 1
-                    sides = dice.group(2)
-                    if (sides not in ['f','F'] and int(sides) > 1000) or (dice_num > 1000):
-                        raise Exception('Maximum number of dice sides and rollable dice are 1000.')
-                    space = ' '
-                    result['visual'].append(space + '(')
-                    result['equation'].append('(')
-                    fate_dice = ''
-                    current_die_results = ''
-                    plus = ''
-                    explode = True if dice.group(3) == '!' and int(dice.group(2)) > 1 else False
+                    try:
+                        dice_num = int(dice.group(1)) if dice.group(1) else 1
+                        sides = dice.group(2)
+                        try:
+                            if int(dice.group(1)) <= 0:
+                                raise Exception('Invalid number of dice!')
+                        except AttributeError:
+                            raise Exception('Invalid number of dice!')
+                        if (sides not in ['f','F'] and int(sides) > 1000) or (dice_num > 1000):
+                            raise Exception('Maximum number of dice sides and rollable dice are 1000.')
+                        space = ' '
+                        result['visual'].append(space + '(')
+                        result['equation'].append('(')
+                        fate_dice = ''
+                        current_die_results = ''
+                        plus = ''
+                        explode = True if dice.group(3) == '!' and int(dice.group(2)) > 1 else False
 
-                    while dice_num > 0:
-                        if sides in ['f','F']:
-                            is_fate = True
-                            use_ladder = True
-                            current_fate_die = secrets.choice(list(fate_options.keys()))
-                            current_die_results += plus + str(current_fate_die)
-                            fate_dice += fate_options[current_fate_die] + ' '
+                        while dice_num > 0:
+                            if sides in ['f','F']:
+                                is_fate = True
+                                use_ladder = True
+                                current_fate_die = secrets.choice(list(fate_options.keys()))
+                                current_die_results += plus + str(current_fate_die)
+                                fate_dice += fate_options[current_fate_die] + ' '
+                            else:
+                                sides = int(sides)
+                                last_roll = secrets.SystemRandom().randint(1,int(dice.group(2)))
+                                current_die_results += plus + str(last_roll)
+                            if not (explode and last_roll == sides):
+                                dice_num -= 1
+                            if len(plus) is 0: # Adds all results to result unless it is the first one
+                                plus = ' + '
+                        if is_fate:
+                            is_fate = False
+                            result['visual'].append(' ' + fate_dice)
                         else:
-                            sides = int(sides)
-                            last_roll = secrets.SystemRandom().randint(1,int(dice.group(2)))
-                            current_die_results += plus + str(last_roll)
-                        if not (explode and last_roll == sides):
-                            dice_num -= 1
-                        if len(plus) is 0: # Adds all results to result unless it is the first one
-                            plus = ' + '
-                    if is_fate:
-                        is_fate = False
-                        result['visual'].append(' ' + fate_dice)
-                    else:
-                        result['visual'].append(current_die_results)
-                    result['equation'].append(current_die_results)
-                    result['visual'].append(')')
-                    result['equation'].append(')')
+                            result['visual'].append(current_die_results)
+                        result['equation'].append(current_die_results)
+                        result['visual'].append(')')
+                        result['equation'].append(')')
+                    except AttributeError:
+                        raise Exception('Invalid number of dice sides!')
+                    
                 else:
                     if item and (item in ['+','-','/','*',')','('] or int(item)):
                         result['visual'].append(' ')
@@ -308,8 +364,11 @@ def roll(bot, update, args):
 
     except Exception as e:
         response = f'@{username}: <b>Invalid equation!</b>\r\n'
-        if (int(sides) > 1000) or (dice_num and dice_num > 1000):
-            response += str(e) + '\r\n'
+        try:
+            if (int(sides) > 1000) or (dice_num and dice_num > 1000):
+                response += str(e) + '\r\n'
+        except UnboundLocalError:
+            pass
         response += ('Please use <a href="https://en.wikipedia.org/wiki/Dice_notation">dice notation</a>.\r\n' +
                      'For example: <code>3d6</code>, or <code>1d20+5</code>, or <code>d12</code>.\r\n\r\n'
                      )
@@ -345,7 +404,7 @@ def home():
 """
 
 
-@app.route("/{}".format(BOT_TOKEN))
+@app.route("/{}".format(BOT_TOKEN), methods=['GET', 'POST'])
 def main():
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
@@ -355,6 +414,7 @@ def main():
     dp.add_handler(CommandHandler('stop', stop))
     dp.add_handler(CommandHandler('summon', summon))
     dp.add_handler(CommandHandler('help', start))
+    dp.add_handler(CommandHandler('run', run))
     dp.add_handler(CommandHandler('track', track, pass_job_queue=True))
     dp.add_handler(CommandHandler('feelgood', feelgood))
     dp.add_handler(CommandHandler(['roll', 'r'], roll, pass_args=True))
@@ -377,5 +437,5 @@ def main():
 # For localhost testing, include this
 """
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', debug=True, port=8443, ssl_context=('cert.pem', 'key.pem'))
+    app.run(host='0.0.0.0', debug=True)
 """

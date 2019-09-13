@@ -44,8 +44,12 @@ Start tracking using the `/track` command.
 Send a feel-good message by using the `/feelgood` command.
 
 ### Dice Roller
-Credit to [@treetrnk](https://github.com/treetrnk/rollem-telegram-bot) for this feature. Roll dices using the `/roll`, `/r` or `/rf` commands.
+Credit to [@treetrnk](https://github.com/treetrnk/rollem-telegram-bot) for this feature. Roll dices using the `/roll <args>`, `/r <args>` or `/rf <args>` commands.
 Please follow the proper <a href="https://en.wikipedia.org/wiki/Dice_notation">dice notation</a>.
+
+### Code Tester
+Credit to [@veetaw](https://github.com/veetaw/rextester) and [@GingerPlusPlus](https://github.com/GingerPlusPlus/Rextester-bot-v3) for this feature. Execute snippets of code of various programming languages by using the `/run <language> <code> \stdin <stdin>` command.
+Might be useful for SUTD 10.009 Digital World.
 
 
 
@@ -59,6 +63,3 @@ Set and (auto-)delete reminders for each school day.
 
 ### Internal Voting System
 Establish a voting system internally within the group so as to not depend on an external voting bot such as [@countmeinbot](https://t.me/countmeinbot).
-
-### Code Tester
-Execute snippets of code of various programming languages. Might be useful for SUTD 10.009 Digital World.
