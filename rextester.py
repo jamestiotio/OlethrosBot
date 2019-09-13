@@ -16,7 +16,7 @@ class Rextester:
         self.session = requests.Session()  # keep alive
 
     def execute(self, language: str, code: str, stdin: str = ''):
-        if language.lower() not in LANGUAGES.keys():
+        if language not in LANGUAGES.keys():
             raise RextesterException('unknown_lang')
         
         if "{}".format(LANGUAGES.get(language)) in COMPILER_ARGS.keys():

@@ -180,29 +180,29 @@ def run(bot, update):
     code = ' '.join(message_text.split(' ')[2:])
 
     try:
-        response = rextester.execute(language=language, code=code, stdin=stdin)
+        response = rextester.execute(language=language.lower(), code=code, stdin=stdin)
     except RextesterException:
         bot.send_message(chat_id=main_chat, text='Error at Rextester or unknown language!')
         return
 
     extra = ''
     if response['Warnings']:
-        extra = extra + '\r\nWarning: ' + response['Warnings'] + '.'
+        extra = extra + '\r\nWarning: \r\n' + response['Warnings']
     if response['Errors']:
-        extra = extra + '\r\nErrors: ' + response['Errors'] + '.'
+        extra = extra + '\r\nErrors: \r\n' + response['Errors']
 
     stats = ''
     if response['Stats']:
-        stats = '\r\nStats: ' + response['Stats'] + '.'
+        stats = '\r\nStats: \r\n' + response['Stats'] + '.'
 
     output = ' No output. '
     if response['Result']:
         output = response['Result']
 
-    if len(extra) < 4070:  # prevent message_too_long
+    if len(extra) < 4070:  # Prevent message_too_long
         bot.send_message(chat_id=main_chat, text='Output: ' + output[:(4080 - len(extra) - len(stats))] + extra + stats)
     else:
-        bot.send_message(chat_id=main_chat, text='Too long errors/warnings to show output. Sorry!')
+        bot.send_message(chat_id=main_chat, text='Too many long errors/warnings to show output. Sorry!')
 
 
 # Main daily check function
