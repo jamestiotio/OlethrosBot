@@ -44,7 +44,7 @@ Start tracking using the `/track` command.
 Send a feel-good message by using the `/feelgood` command.
 
 ### Dice Roller
-Credit to [@treetrnk](https://github.com/treetrnk/rollem-telegram-bot) for this feature. Roll dices using the `/roll <args>`, `/r <args>` or `/rf <args>` commands.
+Credit to [@treetrnk](https://github.com/treetrnk/rollem-telegram-bot) for this feature. Roll dices using the `/roll <args>`, `/r <args>` or `/rf [<args>]` commands.
 Please follow the proper <a href="https://en.wikipedia.org/wiki/Dice_notation">dice notation</a>.
 
 ### Code Tester

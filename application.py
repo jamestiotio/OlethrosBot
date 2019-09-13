@@ -286,7 +286,7 @@ def roll(bot, update, args):
 
     try:
         for pair in equation_list:
-            #print(f"pair: {pair}")
+            # print(f"pair: {pair}")
             for item in pair:
                 if item and len(item) > 1 and 'd' in item:
                     dice = re.search(r'(\d*)d([0-9fF]+)(!)?', item)
