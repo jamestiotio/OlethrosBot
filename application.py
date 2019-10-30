@@ -12,6 +12,7 @@ import logging
 import datetime
 import secrets
 import json
+from bson import json_util
 import re
 import traceback
 from functools import wraps
@@ -23,6 +24,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, \
     KeyboardButton, ReplyKeyboardMarkup, ParseMode
 from rextester import Rextester, RextesterException
 import botinfo
+from dbhelper import DBHelper
 from flask import Flask
 
 app = Flask(__name__)
@@ -43,8 +45,7 @@ rextester = Rextester()
 # WEBHOOK_URL = botinfo.WEBHOOK_URL
 # PORT = int(os.environ.get('PORT', '8443'))
 
-with open('class_list.json') as f:
-    data = json.load(f)
+db = DBHelper()
 
 ladder = {
     8  : 'Legendary',
@@ -143,7 +144,7 @@ def start(bot, update):
     reply_markup = telegram.ReplyKeyboardRemove()
     bot.send_message(chat_id=main_chat,
                      text='Hi there! I am Olethros Bot, '
-                          'a multi-functional butler for this class group.\r\n\r\n'
+                          'a multi-functional butler bot for this class group.\r\n\r\n'
                           '• /track to initiate the daily birthday tracking function.\r\n'
                           '• /feelgood to send the feel-good message.\r\n'
                           '• /summon to attempt to summon a user.\r\n'
@@ -176,18 +177,22 @@ def run(bot, update):
         stdin = ' '.join(message_text.split('\stdin ')[1:])
         message_text = message_text.replace('\stdin ' + stdin, '')
 
-    language = message_text.split(' ')[1]
-    code = ' '.join(message_text.split(' ')[2:])
+    language = message_text.split(' ')[1].lower()
+    
+    if message_text.split(' ')[2:].startswith("```", 0, 3) and message_text.split(' ')[2:].endswith("```", 0, 3):
+        code = ' '.join(message_text.split(' ')[2:])[3:-3]
+    else:
+        code = ' '.join(message_text.split(' ')[2:])
 
     try:
-        response = rextester.execute(language=language.lower(), code=code, stdin=stdin)
+        response = rextester.execute(language=language, code=code, stdin=stdin)
     except RextesterException:
         bot.send_message(chat_id=main_chat, text='Error at Rextester or unknown language!')
         return
 
     extra = ''
     if response['Warnings']:
-        extra = extra + '\r\nWarning: \r\n' + response['Warnings']
+        extra = extra + '\r\nWarnings: \r\n' + response['Warnings']
     if response['Errors']:
         extra = extra + '\r\nErrors: \r\n' + response['Errors']
 
@@ -205,14 +210,15 @@ def run(bot, update):
         bot.send_message(chat_id=main_chat, text='Too many long errors/warnings to show output. Sorry!')
 
 
-# Main daily check function
+# Main daily birthday check function
 def check(bot, job):
     print('Conducting daily routine check...')
+    class_list = db.get_class_list()
     birthday_users = []
     current_month = int(datetime.datetime.now().strftime('%m'))
     current_date = int(datetime.datetime.now().strftime('%d'))
 
-    for i in data:
+    for i in class_list:
         if i["Birthmonth"] == current_month and i["Birthdate"] == current_date:
             birthday_users.append(str(i["Name"]))
 
@@ -244,7 +250,8 @@ def track(bot, update, job_queue):
 @main_group
 def feelgood(bot, update):
     bot.send_message(chat_id=main_chat,
-                     text='1. Get up at the same time every day.\r\n'
+                     text='Some advice from @jamestiotio:\r\n\r\n'
+                          '1. Get up at the same time every day.\r\n'
                           '2. Eat a protein-rich breakfast every day.\r\n'
                           '3. When feeling anxious, eat a bit of food.\r\n'
                           '4. Be honest with yourself and be willing to negotiate, don\'t paralyze yourself by trying to do too much at once.\r\n'
@@ -385,9 +392,30 @@ def roll(bot, update, args):
 
 
 @main_group
-def set_reminder(bot, update):
+def remindme(bot, update, args):
+    username = update.message.from_user.username if update.message.from_user.username else update.message.from_user.first_name
+    message = update.effective_message.text
+
+    if (message.find(" to ") != -1) and (message.find(" that ") > message.find(" to ") or message.find(" that ") == -1):
+        message = update.effective_message.text.replace(" to ", " that ", 1)
+    
+    str_args = message.split(" that ", 2)
+
+    if len(str_args) != 2:
+        bot.send_message(chat_id=main_chat,
+                         text='Something went wrong while processing your reminder! Please try again!'
+                              'Do follow the format: /remindme <time> <"that"/"to"> <reminder-text>.')
+
+    reminder_time = ""
+    reminder_message = ""
+    
+    # Add code here to connect to reminder database and time check
+    
     bot.send_message(chat_id=main_chat,
-                     text='This command is still under development. Apologies for the inconvenience!')
+                     parse_mode=ParseMode.MARKDOWN,
+                     text='*New reminder added!* \r\n'
+                          '*Reminded at:* {} *by* @{} \r\n'
+                          '*Reminder:* {}'.format(reminder_time, username, reminder_message))
 
 
 @main_group
@@ -419,7 +447,7 @@ def main():
     dp.add_handler(CommandHandler('feelgood', feelgood))
     dp.add_handler(CommandHandler(['roll', 'r'], roll, pass_args=True))
     dp.add_handler(CommandHandler('rf', rf, pass_args=True))
-    dp.add_handler(CommandHandler('set_reminder', set_reminder))
+    dp.add_handler(CommandHandler('remindme', remindme, pass_args=True))
     dp.add_handler(CommandHandler('vote', vote))
 
     # Log all errors
