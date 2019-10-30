@@ -19,6 +19,46 @@ This bot is deployed on Microsoft Azure as a Flask Web App (in a Linux Docker Co
   ``` json
   [
   {
+    "name": "ADMIN_LIST",
+    "value": "[]",
+    "slotSetting": false
+  },
+  {
+    "name": "BOT_TOKEN",
+    "value": "<id>:<token>",
+    "slotSetting": false
+  },
+  {
+    "name": "EMAIL",
+    "value": "",
+    "slotSetting": false
+  },
+  {
+    "name": "main_chat",
+    "value": "-1",
+    "slotSetting": false
+  },
+  {
+    "name": "MONGODB_ATLAS_CONNECTION_STRING",
+    "value": "mongodb+srv://<username>:<password>@<app-name>.azure.mongodb.net/<database>?retryWrites=true&w=majority",
+    "slotSetting": false
+  },
+  {
+    "name": "private_chat",
+    "value": "0",
+    "slotSetting": false
+  },
+  {
+    "name": "WEBHOOK_URL",
+    "value": "",
+    "slotSetting": false
+  },
+  {
+    "name": "WEBSITE_HTTPLOGGING_RETENTION_DAYS",
+    "value": "30",
+    "slotSetting": false
+  },
+  {
     "name": "WEBSITE_TIME_ZONE",
     "value": "Asia/Singapore",
     "slotSetting": false
@@ -28,11 +68,15 @@ This bot is deployed on Microsoft Azure as a Flask Web App (in a Linux Docker Co
 
 Reminder to set your commit credentials (username and password) for deployment authentication purposes.
 
+You can import a local `.json` file to a MongoDB Atlas collection by running: `mongoimport --host <replSetName>/<hostname1><:port>,<hostname2><:port>,<hostname3><:port>,<...> --ssl --username <USERNAME> --password <PASSWORD> --authenticationDatabase <DBNAME> --db <DATABASE> --collection <COLLECTION> --type json --file <FILENAME>.json --jsonArray`.
+
 Additionally, you will need to configure your `botinfo.py` and `class_list.json` files properly before deployment. (The `cert.pem` and `key.pem` files are required for the upcoming webhook implementation as I will be using a self-signed SSL certificate.)
 
 After successful deployment, start the web app (if it is not yet started) and run the bot by going to `https://<app-name>.azurewebsites.net/<bot-token>`. It should return an `OK`. The purpose of putting `<bot-token>` there is to prevent anyone else from just running the bot as and when they like it. This is also to prevent exposing too much obvious endpoints of the bot to the Internet for security purposes. After running the bot, **do not** go to the homepage (`https://<app-name>.azurewebsites.net/`) as it will disable the bot. Alternatively, you can disable the homepage route entirely.
 
 NOTE: If the bot sleeps after a few hours without any HTTP requests (even with the `Always On` setting enabled), use [Uptime Robot](https://uptimerobot.com/) to schedule a free HTTP request at a regular interval (I used a 1-hour interval).
+
+
 
 ## Functions
 Currently, these are the available functions of this bot:
@@ -59,7 +103,7 @@ Might be useful for SUTD 10.009 Digital World.
 Generate an Excel sheet with a table and a pie chart of the Telegram group's message frequency from the group members. The `openpyxl` library would be needed.
 
 ### Reminder
-Set and (auto-)delete reminders for each school day.
+Set and (auto-)delete reminders for each school day or in a specified timing. An Azure-based MongoDB Atlas database was established for this particular function. Add your Azure App's Outbound IP Addresses to MongoDB Atlas' IP Whitelist. To set a reminder, use the `/remindme <time> <"to"/"that"> <reminder-text>` command.
 
 ### Internal Voting System
 Establish a voting system internally within the group so as to not depend on an external voting bot such as [@countmeinbot](https://t.me/countmeinbot).
