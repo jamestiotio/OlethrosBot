@@ -66,11 +66,13 @@ This bot is deployed on Microsoft Azure as a Flask Web App (in a Linux Docker Co
   ]
   ```
 
+MongoDB Atlas schema is coming soon.
+
 Reminder to set your commit credentials (username and password) for deployment authentication purposes.
 
 You can import a local `.json` file to a MongoDB Atlas collection by running: `mongoimport --host <replSetName>/<hostname1><:port>,<hostname2><:port>,<hostname3><:port>,<...> --ssl --username <USERNAME> --password <PASSWORD> --authenticationDatabase <DBNAME> --db <DATABASE> --collection <COLLECTION> --type json --file <FILENAME>.json --jsonArray`.
 
-Additionally, you will need to configure your `botinfo.py` and `class_list.json` files properly before deployment. (The `cert.pem` and `key.pem` files are required for the upcoming webhook implementation as I will be using a self-signed SSL certificate.)
+The `cert.pem` and `key.pem` files are required for the upcoming webhook implementation as I will be using a self-signed SSL certificate.
 
 After successful deployment, start the web app (if it is not yet started) and run the bot by going to `https://<app-name>.azurewebsites.net/<bot-token>`. It should return an `OK`. The purpose of putting `<bot-token>` there is to prevent anyone else from just running the bot as and when they like it. This is also to prevent exposing too much obvious endpoints of the bot to the Internet for security purposes. After running the bot, **do not** go to the homepage (`https://<app-name>.azurewebsites.net/`) as it will disable the bot. Alternatively, you can disable the homepage route entirely.
 
