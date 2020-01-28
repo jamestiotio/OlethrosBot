@@ -109,3 +109,6 @@ Set and (auto-)delete reminders for each school day or in a specified timing. An
 
 ### Internal Voting System
 Establish a voting system internally within the group so as to not depend on an external voting bot such as [@countmeinbot](https://t.me/countmeinbot).
+
+### Karma Credit System
+Implement a karma credit system (similar to a social credit system) using upvotes and downvotes (similar to Reddit) or possibly, through the use of designated stickers. A karma leaderboard can be displayed if requested. Extra care needs to be taken for this system to not go horribly wrong as it might lead to the destruction of some friendships.
